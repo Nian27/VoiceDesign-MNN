@@ -1,0 +1,5 @@
+01352f9b0d263b70850bacf6fb7c76b152500caa369b19d89ecead13394c8b9e  vd-weights-1-graphb-mnn.zip  503734
+911961c46abd9864f9a39979e60faab31b737cf0f1b173fe5b9ebef9c41a068d  vd-weights-2-graphb-w-part0.zip  1500000312
+f1890860804e2e6a363ff0676a839b56a8c3268b0a8749c1b96fc7a9ea3b3d19  vd-weights-3-graphb-w-part1.zip  1321857592
+52c6a45ba24ad77f0b454ec558f27edeceb02c4b0bb0fe8ba62a0cb38ca148b5  vd-weights-4-decoder.zip  944514162
+7ebcb98c90cea97f0ea59c3dcf526c0caa98b45be69cc218d0e9e773e7696e78  vd-weights-5-hosttables.zip  1045679777
