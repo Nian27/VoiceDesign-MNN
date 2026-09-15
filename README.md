@@ -308,7 +308,14 @@ VoiceDesign-MNN/
 │   ├── cp_r3_probe.cpp          codepred prefill+step CPU vs HTP
 │   ├── cp_r4_probe.cpp          codepred 自驱 16 码轨迹
 │   └── vd_full_chain.cpp        整链 CLI（子进程方案备用）
-├── scripts/                     导出与验证
+├── scripts/                     全部处理脚本（276 个 .py）+ README.md 索引
+├── evidence/                    证据留档
+│   ├── reports/                 20 份阶段报告（原始 markdown）
+│   └── gates/                   验证原始输出（分词比对 / prompt 复刻 / bias 发现 …）
+├── weights/                     权重打包与分发
+│   ├── README.md                为什么要分包（GitHub asset 上限 2GB）+ 上传命令
+│   ├── pack_weights.sh          打成 3 个 <2GB 的 zip + SHA-256
+│   └── SHA256SUMS.txt           21 个文件的真实校验和
 └── docs/
     ├── ARCHITECTURE.md
     ├── DEVELOPMENT_STORY.md
@@ -317,6 +324,30 @@ VoiceDesign-MNN/
     ├── BUILD_AND_DEPLOY.md
     └── NPU_HEXAGON_NOTES.md
 ```
+
+### probes/ 里有什么（23 个 .cpp）
+
+| 探针 | 用途 |
+|---|---|
+| `cp_r3_probe.cpp` | codepred prefill + 14 级 forced-prefix，CPU vs HTP 逐级 dump |
+| `cp_r4_probe.cpp` | codepred 自驱 16 码轨迹（shared-RNG） |
+| `vd_full_chain.cpp` | 整链 CLI（子进程方案备用）；也是**最初版本的完整参考实现** |
+| `vd_text.cpp` | 分词器 + prompt 拼装（自带 self-test main，可 `-DVDT_NO_MAIN` 关掉） |
+| `g2a_loop.cpp` / `g2b_loop2.cpp` | GraphB 20 步轨迹循环 + CDF 记录 |
+| `graphb28_probe.cpp` / `graphb_*_probe*.cpp` | GraphB 单步 / 逐层 / 部署态诊断 |
+| `codec_head_gate.cpp` | codec_head 数值门 |
+| `qwen3tts_*_probe.cpp` | 早期整模型探针 |
+
+### evidence/gates/ 里有什么（原始输出，非结论）
+
+| 文件 | 内容 |
+|---|---|
+| `tokenizer_compare_device.txt` | 设备分词器的逐 id 输出 vs 期望 |
+| `prompt_recon_pc.txt` | PC 复刻 prompt 的比对结果（`exact_equal = True`）|
+| `proj_bias_finding.txt` | **发现 MLP bias 缺失**的那次输出（cos 0.83 → 1.0）|
+| `proj_layout_test.txt` | 权重布局排查（`has bias: True True`）|
+| `text_tables_export.txt` | 文本表导出日志 |
+| `tok_cases.txt` | 分词用例 + HF 参考 id |
 
 ---
 
