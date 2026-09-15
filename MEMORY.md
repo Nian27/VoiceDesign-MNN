@@ -63,6 +63,31 @@ decoder          57 s             -
 5. 一次只跑一个重任务
 ```
 
+## NPU / HTP 关键数据（CLI 可用，App 内不可用）
+
+```text
+GraphB 28L 单步    HTP 126 ms/step  RSS 1.29 GB   hidden cos 0.9983157
+                   CPU 1190 ms/step RSS 6.08 GB   hidden cos 1.0000000
+F1 功能门          LOGITS_COS 0.999330  TOP50 49/50  EOS rank 91=91  RNG 32/32
+G2-A 20 步         hidden 0.99776->0.99855 (drift +0.00079)  无累积崩坏
+codepred prefill   hidden 0.9999958  kvk 0.9999997  kvv 0.9999992
+codepred 14 级     hidden min 0.9999223  logits min 0.9999907  top1 14/14 一致
+codepred 性能      prefill 1.95ms  step 5.3ms  整帧 71ms  RSS 367MB (CPU 整帧 1223ms)
+CP-R4 自驱         frame0 在 code_index 7 boundary flip (CDF 只差 2.7e-4)
+```
+
+**三个 MNN Hexagon lowering bug**（上游未修，见 patches/README.md）
+```text
+Bug A  stride-3 交错 mRoPE 的 slice/scatter 降低错误   -> host 预交错
+Bug B  fp16 下 -inf 掩码被钳到 65504                  -> host mask + -1e4
+Bug C  ScatterND 不保留目标原值                        -> one-hot mask 广播加
+```
+
+**被证伪的手段**：`MNN_HEX_HIDDEN_DUMP` 回读是垃圾数据；`MNN_HEX_ATTN_OFF=1` 输出逐位不变。
+
+**App 内 HTP 失败路径**：静默挂死 -> (修 ADSP) -> 空 VARP 崩溃 -> (加防御) -> ERR BACKEND_STOP_EXECUTE。
+待查：untrusted_app 域的 FastRPC / dma-buf 限制。详见 docs/NPU_HEXAGON_NOTES.md。
+
 ## 还没搞清楚的
 
 ```text

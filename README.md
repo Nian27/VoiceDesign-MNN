@@ -189,7 +189,12 @@ val status = eng.run(
 |---|---|
 | `opencl` | **完整跑通**（GPU） |
 | `cpu` | 可跑（慢，RSS ~7GB 易被杀） |
-| `htp` (NPU) | App 内 DSP stop-execute / 挂死（CLI 探针正常，见 docs/NPU_HEXAGON_NOTES.md） |
+| `htp` (NPU) | App 内 DSP stop-execute / 挂死（**CLI 探针完全可用：126 ms/step，比 CPU 快 9.4 倍**） |
+
+> **NPU 那条线做了大量工作**：证明了 Hexagon 真的在 DSP 上执行、找到并绕开 **3 个 MNN Hexagon lowering bug**、
+> 拿到 28L 全绿（hidden cos 0.9983157）、codepred 精度 **0.9999+** 且性能 **71 ms/帧（23.7x）**，
+> 也诚实记录了**哪些结论后来被推翻**、**哪些至今没解决**。
+> **完整技术档案（434 行，含全部实测数据 / 诊断命令 / 踩坑 / 被证伪的手段）见 [docs/NPU_HEXAGON_NOTES.md](docs/NPU_HEXAGON_NOTES.md)。**
 
 > **推荐**：VoiceDesign 走 **OpenCL**，把 **NPU 留给 LLM**（同机的 ReaderDirector / Qwen 推理）。
 
