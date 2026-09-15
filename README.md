@@ -353,8 +353,17 @@ VoiceDesign-MNN/
 
 ## 13. 许可与致谢
 
-- 本项目代码：**Apache-2.0**（见 LICENSE）
-- 模型权重来自 **Qwen3-TTS**（Alibaba Qwen），遵循其原始许可，**本仓库不包含权重**
+**全链路均为 Apache-2.0**，三者兼容：
+
+| 组成 | 许可 |
+|---|---|
+| 本项目代码 | **Apache-2.0**（见 LICENSE，版权行 `Copyright 2026 Nian27`） |
+| 模型权重 Qwen3-TTS-12Hz-1.7B-VoiceDesign | **apache-2.0**（模型 README 的 `license` 字段） |
+| 推理引擎 MNN | **Apache-2.0** |
+
+因此权重**可以合法再分发**（需保留署名）。本仓库 git 本体不含权重，权重走 Release asset（见 weights/README.md）。
+
+- 模型权重来自 **Qwen3-TTS**（Alibaba Qwen），**本仓库不包含权重**
 - 推理引擎：[**MNN**](https://github.com/alibaba/MNN)（Apache-2.0）
 - 参考项目：[**Nian27/CosyVoice3-MNN**](https://github.com/Nian27/CosyVoice3-MNN)（同设备路线，工程结构参考）
 - Hexagon 配方来自 MNN 仓库 `source/backend/hexagon/README.md` 与官方 `apps/Android/MnnLlmChat/.../QnnModule.kt`
