@@ -1,0 +1,30 @@
+# build
+build/
+.cxx/
+*.apk
+*.aab
+.gradle/
+local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# 模型与数据（绝不入库）
+models/
+*.mnn
+*.mnn.weight
+*.safetensors
+*.onnx
+*.f32
+*.fp16
+*.raw
+*.wav
+*.npy
+*.bin
+
+# 运行产物
+runs/
+output/
+*.log

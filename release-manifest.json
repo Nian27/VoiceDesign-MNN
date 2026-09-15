@@ -1,0 +1,148 @@
+{
+  "schema": "voicedesign-mnn-release/1",
+  "project": "VoiceDesign-MNN",
+  "model": "Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+  "note": "本仓库不包含模型权重。以下为运行所需的完整文件清单（部署到 App 私有目录）。",
+  "target": {
+    "device": "Honor Magic8 Pro (BKQ-AN90 / SM8850)",
+    "os": "Android 17",
+    "abi": "arm64-v8a",
+    "backend_verified": "opencl"
+  },
+  "total_bytes": 4812549603,
+  "files": [
+    {
+      "name": "graphb28_v6_fp16.mnn",
+      "bytes": 503448,
+      "kind": "graph",
+      "desc": "talker 28L 单步 (KV 768 slot)"
+    },
+    {
+      "name": "graphb28_v6_fp16.mnn.weight",
+      "bytes": 2821857280,
+      "kind": "weights",
+      "desc": "GraphB 常量池",
+      "sha256_prefix": "f23dbc06646349f3fd90aece"
+    },
+    {
+      "name": "codepred_prefill_fp16.mnn",
+      "bytes": 161953004,
+      "kind": "graph",
+      "desc": "code_predictor prefill (2 token)",
+      "nodes": 913,
+      "argmax": 0,
+      "scatternd": 0
+    },
+    {
+      "name": "codepred_step_fp16.mnn",
+      "bytes": 161923900,
+      "kind": "graph",
+      "desc": "code_predictor step (KV cap 16)",
+      "nodes": 809,
+      "argmax": 0,
+      "scatternd": 0
+    },
+    {
+      "name": "tokenizer_decoder_static_t300.mnn",
+      "bytes": 457023384,
+      "kind": "graph",
+      "desc": "12.5Hz codec -> waveform (static 300 frames)"
+    },
+    {
+      "name": "frame_emb_fp16.mnn",
+      "bytes": 138430844,
+      "kind": "graph",
+      "desc": "16 codebooks -> 2048-d frame embedding"
+    },
+    {
+      "name": "codec_head_fp16.mnn",
+      "bytes": 12597532,
+      "kind": "graph",
+      "desc": "codec logits (3072)"
+    },
+    {
+      "name": "codec_emb_fp16.mnn",
+      "bytes": 12583868,
+      "kind": "graph",
+      "desc": "talker codec embedding lookup"
+    },
+    {
+      "name": "lm_head_weight.f32",
+      "bytes": 125829120,
+      "kind": "host_table",
+      "desc": "15 x lm_head (2048x1024) fp32, mmap"
+    },
+    {
+      "name": "codec_emb_weight.f32",
+      "bytes": 251658240,
+      "kind": "host_table",
+      "desc": "15 x codec embedding (2048x2048) fp32, mmap"
+    },
+    {
+      "name": "text_embedding.fp16",
+      "bytes": 622329856,
+      "kind": "host_table",
+      "desc": "text vocab 151936x2048 fp16, mmap"
+    },
+    {
+      "name": "text_proj_fc1.fp16",
+      "bytes": 8388608,
+      "kind": "host_table",
+      "desc": "text_projection fc1 (2048x2048)"
+    },
+    {
+      "name": "text_proj_fc2.fp16",
+      "bytes": 8388608,
+      "kind": "host_table",
+      "desc": "text_projection fc2 (2048x2048)"
+    },
+    {
+      "name": "text_proj_fc1_bias.f32",
+      "bytes": 8192,
+      "kind": "host_table",
+      "desc": "fc1 bias -- 必需! 漏了会让 prompt cos 掉到 0.83"
+    },
+    {
+      "name": "text_proj_fc2_bias.f32",
+      "bytes": 8192,
+      "kind": "host_table",
+      "desc": "fc2 bias -- 必需!"
+    },
+    {
+      "name": "talker_codec_emb.f32",
+      "bytes": 25165824,
+      "kind": "host_table",
+      "desc": "talker codec_embedding (3072x2048) fp32"
+    },
+    {
+      "name": "tokenizer.bin",
+      "bytes": 3490103,
+      "kind": "tokenizer",
+      "desc": "compact BPE: vocab 151643 + merges 151387 + added 33"
+    },
+    {
+      "name": "talker_rope_cos.f32",
+      "bytes": 196608,
+      "kind": "table",
+      "desc": "merged mRoPE cos (384 pos x 128)"
+    },
+    {
+      "name": "talker_rope_sin.f32",
+      "bytes": 196608,
+      "kind": "table",
+      "desc": "merged mRoPE sin (384 pos x 128)"
+    },
+    {
+      "name": "codepred_rope_cos.f32",
+      "bytes": 8192,
+      "kind": "table",
+      "desc": "codepred RoPE cos (16 x 128)"
+    },
+    {
+      "name": "codepred_rope_sin.f32",
+      "bytes": 8192,
+      "kind": "table",
+      "desc": "codepred RoPE sin (16 x 128)"
+    }
+  ]
+}
