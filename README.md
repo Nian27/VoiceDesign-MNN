@@ -16,17 +16,6 @@
 | **不需要** | 参考音频 / 预置说话人 / 网络 / 云端 —— 统统不需要 |
 | **模型** | Qwen3-TTS-12Hz-1.7B-VoiceDesign（talker 28L + code_predictor + 12.5Hz codec decoder） |
 
-### 与其它 TTS 路线的区别
-
-| 模式 | 需要什么 | 说明 |
-|---|---|---|
-| **VoiceDesign**（本项目） | **只要文字** | 用文字**创造**音色。`tts_model_type=voice_design`，`spk_id={}`（连预设音色都没有） |
-| Voice Clone | 参考音频 + 文本 | 克隆已有音色（`generate_voice_clone`） |
-| Custom Voice | 预设说话人名 | 用内置音色（`generate_custom_voice`） |
-
-> **术语澄清**：早期笔记把产物叫 "reference.wav" 是**错误叫法**，容易与"参考音频"混淆。
-> 正确叫法是 **designed voice sample（音色样张）** —— 它是"造出来的"，不是"拿来当参考的"。
-
 ---
 
 ## 2. 整体架构
