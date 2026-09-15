@@ -15,14 +15,15 @@
       "name": "graphb28_v6_fp16.mnn",
       "bytes": 503448,
       "kind": "graph",
-      "desc": "talker 28L 单步 (KV 768 slot)"
+      "desc": "talker 28L 单步 (KV 768 slot)",
+      "sha256": "09c64b8894095188b7e10fe58c01dd109b8876b36e4e3624bb3519a615c5ddda"
     },
     {
       "name": "graphb28_v6_fp16.mnn.weight",
       "bytes": 2821857280,
       "kind": "weights",
       "desc": "GraphB 常量池",
-      "sha256_prefix": "f23dbc06646349f3fd90aece"
+      "sha256": "f23dbc06646349f3fd90aece8aaf78cdb8f73693d069a6b8d4f0da1031750528"
     },
     {
       "name": "codepred_prefill_fp16.mnn",
@@ -31,7 +32,8 @@
       "desc": "code_predictor prefill (2 token)",
       "nodes": 913,
       "argmax": 0,
-      "scatternd": 0
+      "scatternd": 0,
+      "sha256": "4f8767bde371c16e0ecb1cc1757be1e9315a435286a4ae26668fc895e5fdca41"
     },
     {
       "name": "codepred_step_fp16.mnn",
@@ -40,109 +42,133 @@
       "desc": "code_predictor step (KV cap 16)",
       "nodes": 809,
       "argmax": 0,
-      "scatternd": 0
+      "scatternd": 0,
+      "sha256": "3e55f6087fdfb306249f09453b309def5522a55c7af2f705799fede4f172062d"
     },
     {
       "name": "tokenizer_decoder_static_t300.mnn",
       "bytes": 457023384,
       "kind": "graph",
-      "desc": "12.5Hz codec -> waveform (static 300 frames)"
+      "desc": "12.5Hz codec -> waveform (static 300 frames)",
+      "sha256": "e0d9c01a7b82707f41d0a3495896a59a60e6200d828a91fb4600588b3a1e02f6"
     },
     {
       "name": "frame_emb_fp16.mnn",
       "bytes": 138430844,
       "kind": "graph",
-      "desc": "16 codebooks -> 2048-d frame embedding"
+      "desc": "16 codebooks -> 2048-d frame embedding",
+      "sha256": "efa706f8729dcb15c9304405d09cc86a479c7ccd80d62521621f579a4984011e"
     },
     {
       "name": "codec_head_fp16.mnn",
       "bytes": 12597532,
       "kind": "graph",
-      "desc": "codec logits (3072)"
+      "desc": "codec logits (3072)",
+      "sha256": "379f5745f00af09ca20912878ea9909454c6450b16c51a4de2abbe556ba4de5a"
     },
     {
       "name": "codec_emb_fp16.mnn",
       "bytes": 12583868,
       "kind": "graph",
-      "desc": "talker codec embedding lookup"
+      "desc": "talker codec embedding lookup",
+      "sha256": "d98fcce29901056e2c1aba81e7154205422c778fe796b6838212f0d903fc1005"
     },
     {
       "name": "lm_head_weight.f32",
       "bytes": 125829120,
       "kind": "host_table",
-      "desc": "15 x lm_head (2048x1024) fp32, mmap"
+      "desc": "15 x lm_head (2048x1024) fp32, mmap",
+      "sha256": "d9c55d776102c8f69af67bfd069b5b2773e474fc06818a5cdade806946c561ed"
     },
     {
       "name": "codec_emb_weight.f32",
       "bytes": 251658240,
       "kind": "host_table",
-      "desc": "15 x codec embedding (2048x2048) fp32, mmap"
+      "desc": "15 x codec embedding (2048x2048) fp32, mmap",
+      "sha256": "f8406949452f7fdba75dc268f0e99816dc5181d252551206fe568dda43de933e"
     },
     {
       "name": "text_embedding.fp16",
       "bytes": 622329856,
       "kind": "host_table",
-      "desc": "text vocab 151936x2048 fp16, mmap"
+      "desc": "text vocab 151936x2048 fp16, mmap",
+      "sha256": "e51ddbd7994b14f058bf3f2fa6726e8fd57f5bdf5f17788e8f74c2f6c1e0229c"
     },
     {
       "name": "text_proj_fc1.fp16",
       "bytes": 8388608,
       "kind": "host_table",
-      "desc": "text_projection fc1 (2048x2048)"
+      "desc": "text_projection fc1 (2048x2048)",
+      "sha256": "d1f4f025b8104f6602ec6f276dd0716e3ba86ba5ea35ad51d758fc7e994cad2d"
     },
     {
       "name": "text_proj_fc2.fp16",
       "bytes": 8388608,
       "kind": "host_table",
-      "desc": "text_projection fc2 (2048x2048)"
+      "desc": "text_projection fc2 (2048x2048)",
+      "sha256": "1f068cf93f1598ded6fa7b778528e8740e811792f7be9ddcdf903a3a4f29b61d"
     },
     {
       "name": "text_proj_fc1_bias.f32",
       "bytes": 8192,
       "kind": "host_table",
-      "desc": "fc1 bias -- 必需! 漏了会让 prompt cos 掉到 0.83"
+      "desc": "fc1 bias -- 必需! 漏了会让 prompt cos 掉到 0.83",
+      "sha256": "1b47e23dc07cedf227fac6b1746584944d09ed7fc12cd0b0e41173d538b04f7f"
     },
     {
       "name": "text_proj_fc2_bias.f32",
       "bytes": 8192,
       "kind": "host_table",
-      "desc": "fc2 bias -- 必需!"
+      "desc": "fc2 bias -- 必需!",
+      "sha256": "f055fa1f8c9bf7712a337cd69a9ada1a087f474389b8b84713fc457c0311d022"
     },
     {
       "name": "talker_codec_emb.f32",
       "bytes": 25165824,
       "kind": "host_table",
-      "desc": "talker codec_embedding (3072x2048) fp32"
+      "desc": "talker codec_embedding (3072x2048) fp32",
+      "sha256": "f2a2cfc0dc5167bbb6730c635946f9e8c62b84bed0dceef956bcd50cd5853f4c"
     },
     {
       "name": "tokenizer.bin",
       "bytes": 3490103,
       "kind": "tokenizer",
-      "desc": "compact BPE: vocab 151643 + merges 151387 + added 33"
+      "desc": "compact BPE: vocab 151643 + merges 151387 + added 33",
+      "sha256": "2293d89e4d366438821d2dde69565694a8bb373ce63b0116a7f4c6b6dc832d8e"
     },
     {
       "name": "talker_rope_cos.f32",
       "bytes": 196608,
       "kind": "table",
-      "desc": "merged mRoPE cos (384 pos x 128)"
+      "desc": "merged mRoPE cos (384 pos x 128)",
+      "sha256": "b249c0bb6481224ea1c25030af4c2ae26120518a768463830824e4f0ac2cb9d6"
     },
     {
       "name": "talker_rope_sin.f32",
       "bytes": 196608,
       "kind": "table",
-      "desc": "merged mRoPE sin (384 pos x 128)"
+      "desc": "merged mRoPE sin (384 pos x 128)",
+      "sha256": "633db0b5ef4eaa2cf791274416e1f42c1ccc4d651752c478619d6db6081ea4dc"
     },
     {
       "name": "codepred_rope_cos.f32",
       "bytes": 8192,
       "kind": "table",
-      "desc": "codepred RoPE cos (16 x 128)"
+      "desc": "codepred RoPE cos (16 x 128)",
+      "sha256": "02f8ee554480f186bdd1da04f8723e6d3ad64d42b5d5e4b77edabb42f03c8a24"
     },
     {
       "name": "codepred_rope_sin.f32",
       "bytes": 8192,
       "kind": "table",
-      "desc": "codepred RoPE sin (16 x 128)"
+      "desc": "codepred RoPE sin (16 x 128)",
+      "sha256": "9fd5f0eadea155d46d24c874a73d14cfb50b030595b4fabd2f3806a7c4aaea4c"
     }
-  ]
+  ],
+  "staged_at": "E:/AndroidStudioProjects/vd-weights-staging (hardlinks)",
+  "packaging": {
+    "parts": 3,
+    "max_asset_bytes": 2000000000,
+    "script": "weights/pack_weights.sh"
+  }
 }

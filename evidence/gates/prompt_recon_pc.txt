@@ -1,0 +1,27 @@
+'sox' is not recognized as an internal or external command,
+operable program or batch file.
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+TTS specials: bos=151672 eos=151673 pad=151671
+text_vocab=151936 text_hidden=2048
+instruct_ids len=33  assistant_ids len=27
+  iid[:6]= [151644, 872, 198, 102635, 91777, 105106] ... tail= [1773, 151645, 198]
+  aid[:6]= [151644, 77091, 198, 30709, 106771, 3837] ... tail= [1773, 151645, 198, 151644, 77091, 198]
+
+reconstructed shape = (62, 2048)  captured = (62, 2048)
+GLOBAL cos = 1.00000000
+per-token cos: min=1.000000 max=1.000000
+tokens with cos<0.999: NONE
+exact_equal = True  maxabsdiff=0.000e+00
+RECON_DONE

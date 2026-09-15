@@ -1,0 +1,28 @@
+'sox' is not recognized as an internal or external command,
+operable program or batch file.
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+tp repr: Qwen3TTSTalkerResizeMLP(
+  (linear_fc1): Linear(in_features=2048, out_features=2048, bias=True)
+  (linear_fc2): Linear(in_features=2048, out_features=2048, bias=True)
+  (act_fn): SiLUActivation()
+)
+fc1 shape (2048, 2048) fc2 shape (2048, 2048)
+has bias: True True
+act: SiLUActivation()
+fc1 export vs model: maxdiff=0.000000  cos=0.9999284
+fc2 export vs model: maxdiff=0.000000
+fc1 stage:  x@f1.T vs torch  cos=0.9876823   x@f1 vs torch cos=-0.0434119
+full: silu(x@f1.T)@f2.T cos=0.8335207   @f2 cos=-0.0090070
+PROJ2_DONE

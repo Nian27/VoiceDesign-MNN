@@ -1,0 +1,31 @@
+import numpy as np, MNN, time, os, json
+ART = r'E:/AndroidStudioProjects/qwen3tts-mnn/artifacts/m2'
+OUT = r'E:/AndroidStudioProjects/qwen3tts-mnn/artifacts/device-smoke'
+os.makedirs(OUT, exist_ok=True)
+np.random.seed(7)
+codes = np.random.randint(0, 2048, (1,16,300)).astype(np.int32)
+codes.tofile(OUT + '/decoder_codes_i32.raw')
+print('codes raw bytes', codes.nbytes, flush=True)
+interp = MNN.Interpreter(ART + '/tokenizer_decoder_nonan.mnn')
+sess = interp.createSession()
+it = interp.getSessionInput(sess, 'codes')
+interp.resizeTensor(it, (1,16,300))
+interp.resizeSession(sess)
+ht = MNN.Tensor((1,16,300), MNN.Halide_Type_Int, codes.ravel(), MNN.Tensor_DimensionType_Caffe)
+it.copyFromHostTensor(ht)
+print('feed done', flush=True)
+ot = interp.getSessionOutput(sess, 'waveform')
+t0 = time.time()
+interp.runSession(sess)
+t1 = time.time()
+osh = list(ot.getShape())
+print('osh raw:', osh, flush=True)
+osh = [d if d > 0 else 576000 for d in osh]
+ho = MNN.Tensor(osh, MNN.Halide_Type_Float, MNN.Tensor_DimensionType_Caffe)
+ot.copyToHostTensor(ho)
+wav = np.asarray(ho.getNumpyData()).reshape(osh).astype(np.float32)
+t_pc = round(t1 - t0, 3)
+wav.tofile(OUT + '/decoder_pcm_pc_f32.raw')
+meta = {'shape': osh, 'pc_elapsed_s': t_pc, 'maxabs': float(np.abs(wav).max()), 'finite': bool(np.isfinite(wav).all())}
+open(OUT + '/decoder_pc_meta.json', 'w').write(json.dumps(meta))
+print('PC REF:', meta, flush=True)

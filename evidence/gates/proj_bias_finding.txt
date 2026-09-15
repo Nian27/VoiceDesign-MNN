@@ -1,0 +1,20 @@
+'sox' is not recognized as an internal or external command,
+operable program or batch file.
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+b1 (2048,) mean|.|=0.00436
+b2 (2048,) mean|.|=0.01008
+bytes 8192 8192
+WITH BIAS: PROJ cos = 1.0000000   maxabsdiff=0.000000
+PROJ_FIXED_DONE
