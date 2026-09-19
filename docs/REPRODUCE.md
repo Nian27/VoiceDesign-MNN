@@ -63,10 +63,40 @@ cat graphb28_v6_fp16.mnn.weight.part0 graphb28_v6_fp16.mnn.weight.part1 > graphb
 sha256sum graphb28_v6_fp16.mnn.weight   # 应为 f23dbc06646349f3fd90aece8aaf78cdb8f73693d069a6b8d4f0da1031750528
 ```
 
-### 3.2 合体版 App 需要的那一套 —— **目前还没上传**（见第 5 节缺口）
+### 3.2 合体版 App 需要的那一套 —— **已上传**（v1.1.0，切成 5 片）
 
 合体版与独立样例的权重差 6 个文件（`tokenizer_decoder_static_t96.mnn`、`codepred_prefill/step` 拆开的 `.mnn` + `.mnn.weight`、
-`codec_head_fp16.mnn.weight`）。差异清单与 sha256 见 [`VOICEDESIGN_WEIGHTS.md`](VOICEDESIGN_WEIGHTS.md)。
+`codec_head_fp16.mnn.weight`），另有 `prompt_emb.f32` 只在合体版里存在。差异清单见 [`VOICEDESIGN_WEIGHTS.md`](VOICEDESIGN_WEIGHTS.md)。
+
+```bash
+# 1) 下载 v1.1.0 的 5 个分片 + 校验值
+BASE=https://github.com/Nian27/VoiceDesign-MNN/releases/download/v1.1.0
+for i in 0 1 2 3 4; do curl -LO "$BASE/vd-integrated-delta.zip.part$i"; done
+curl -LO "$BASE/vd-integrated-delta-PARTS-SHA256SUMS.txt"
+sha256sum -c vd-integrated-delta-PARTS-SHA256SUMS.txt
+
+# 2) 拼回一个 zip（29.4 MB 的切片，不是 5 个 zip）
+cat vd-integrated-delta.zip.part0 vd-integrated-delta.zip.part1 vd-integrated-delta.zip.part2 \
+    vd-integrated-delta.zip.part3 vd-integrated-delta.zip.part4 > vd-integrated-delta.zip
+sha256sum vd-integrated-delta.zip   # 应为 1b7f2053ecad63f1168ee053050f9b69f35784a608e556a4e07a9c1e124c2af3
+# 期望大小 1,991,126,872 字节
+
+# 3) 解到 App 私有目录（含 24 个模型文件 + SHA256SUMS.txt）
+unzip vd-integrated-delta.zip -d <app私有目录>/files/cosyvoice3-mnn/voicedesign/
+```
+
+分片 sha256：
+
+```text
+316b75846d8bea7fb283535f0ac182a17a0ee05d50402869862ed0aa78bd0036 *vd-integrated-delta.zip.part0
+2dd22ee0e3b2885c2db9616074e0938fda7abc8193482a2b295f5f6789c2005a *vd-integrated-delta.zip.part1
+699f1e5c23dd0ebef37962d87f5d2907d28ffa24f085f84d0e3150c46c7c00c0 *vd-integrated-delta.zip.part2
+4a1cae13736858f6c3ed56bccab58b51af13673898196bec02ab6ddab9dd2b18 *vd-integrated-delta.zip.part3
+1d8beaaca7f857949c11bc7a0d8f0ace8aa97a03073cb63c3a3d9519596baf3e *vd-integrated-delta.zip.part4
+```
+
+> 注：合体版仍需要 v1.0.0 里的 `graphb28_v6_fp16.mnn.weight`（2.82 GB，由 part0 + part1 拼回），
+> 或直接用增量包里没有的那一份 —— 两者 sha256 相同：`f23dbc06646349f3fd90aece8aaf78cdb8f73693d069a6b8d4f0da1031750528`。
 
 ## 4. 从源码构建
 
@@ -81,8 +111,8 @@ sha256sum graphb28_v6_fp16.mnn.weight   # 应为 f23dbc06646349f3fd90aece8aaf78c
 
 | # | 缺口 | 影响 | 状态 |
 |---|---|---|---|
-| 1 | **合体版设计权重增量包 `vd-integrated-delta.zip`（≈1.67 GB）未上传** | 下 v1.2.0 / v1.1.0 的 APK 后，**文字设计音色用不了**（v1.0.0 那 5 个分片是独立样例那一套，与合体版差 6 个文件） | 待打包上传（需从设备拉 457 MB 的 `tokenizer_decoder_static_t96.mnn`） |
-| 2 | `VoiceDesign-MNN` 本地提交 `7a57e45`（发布说明的 7 分钟基线更正）**未推送** | 线上 v1.1.0 说明缺"7 分钟基线"那几行 | 待推送（需凭据） |
-| 3 | `VoiceDesign-MNN` v1.1.0 的发布说明正文**未 PATCH 成最新版** | 同上 | 待 PATCH（需凭据） |
+| 1 | ~~合体版设计权重增量包未上传~~ | — | ✅ **已上传**（v1.1.0 的 `vd-integrated-delta.zip.part0..4`，拼回后 1,991,126,872 B / sha256 `1b7f2053…c2af3`） |
+| 2 | ~~发布说明的 7 分钟基线更正未推送~~ | — | ✅ 已推送（`2f84bb7`） |
+| 3 | ~~发布说明正文未 PATCH~~ | — | ✅ 已 PATCH（HTTP 200） |
 
-**结论：朗读链路现在下载即可复现；设计链路的权重还差一个增量包，补上才算"下载即可复现"。**
+**结论：朗读链路与设计链路现在都是「下载即可复现」。**（设计链路的权重自 v1.1.0 起已随 Release 提供，切成 5 片。）

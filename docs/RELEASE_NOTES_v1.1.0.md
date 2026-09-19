@@ -129,7 +129,29 @@ v1.1.0 把两条线合成**一个可运行的例子**，并修掉朗读链上「
 
 本 Release 提供合体 APK。权重分两部分（全部为 GitHub 附件 / 已有 Release 复用，单个附件均 < 2 GB）：
 
-*   **设计权重（VoiceDesign / Qwen3-TTS 1.7B）**：`vd-weights-1..5` 见 [v1.0.0](https://github.com/Nian27/VoiceDesign-MNN/releases/tag/v1.0.0)（GraphB 常量池 2.82 GB 因超 2 GB 上限，拆成 part0 / part1）；`vd-integrated-delta.zip` 用于把权重对齐到**合体版 App** 那一套（差异见 [docs/VOICEDESIGN_WEIGHTS.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/VOICEDESIGN_WEIGHTS.md)）。
+*   **设计权重 · 合体版增量包（本版新增，已上传）**：`vd-integrated-delta.zip` 把权重对齐到**合体版 App** 那一套（24 个文件 + `SHA256SUMS.txt`）。
+    因为单次 2 GB 上传在这个网络下会中途断，已按 400 MB 切成 5 片（这是**字节切片**，不是 5 个独立 zip）：
+
+    ```bash
+    # 下载 part0..part4 后拼回来
+    cat vd-integrated-delta.zip.part0 vd-integrated-delta.zip.part1 vd-integrated-delta.zip.part2 \
+        vd-integrated-delta.zip.part3 vd-integrated-delta.zip.part4 > vd-integrated-delta.zip
+    # 期望：1,991,126,872 字节，sha256 1b7f2053ecad63f1168ee053050f9b69f35784a608e556a4e07a9c1e124c2af3
+    sha256sum vd-integrated-delta.zip
+    unzip vd-integrated-delta.zip -d voicedesign/
+    ```
+
+    分片校验值见附件 `vd-integrated-delta-PARTS-SHA256SUMS.txt`：
+
+    ```text
+    316b75846d8bea7fb283535f0ac182a17a0ee05d50402869862ed0aa78bd0036 *vd-integrated-delta.zip.part0
+    2dd22ee0e3b2885c2db9616074e0938fda7abc8193482a2b295f5f6789c2005a *vd-integrated-delta.zip.part1
+    699f1e5c23dd0ebef37962d87f5d2907d28ffa24f085f84d0e3150c46c7c00c0 *vd-integrated-delta.zip.part2
+    4a1cae13736858f6c3ed56bccab58b51af13673898196bec02ab6ddab9dd2b18 *vd-integrated-delta.zip.part3
+    1d8beaaca7f857949c11bc7a0d8f0ace8aa97a03073cb63c3a3d9519596baf3e *vd-integrated-delta.zip.part4
+    ```
+
+*   **设计权重 · 独立样例那一套**：`vd-weights-1..5` 见 [v1.0.0](https://github.com/Nian27/VoiceDesign-MNN/releases/tag/v1.0.0)（GraphB 常量池 2.82 GB 因超 2 GB 上限拆成 part0 / part1）。合体版只需要其中的 `graphb28_v6_fp16.mnn.weight`（sha256 与增量包外的那一份一致）。差异见 [docs/VOICEDESIGN_WEIGHTS.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/VOICEDESIGN_WEIGHTS.md)。
 *   **朗读权重（CosyVoice3 0.5B）**：`cosyvoice3-mnn-mobile-fp16-complete.zip`（1,399,083,563 B）与 `cosyvoice3-mnn-enrollment-extension.zip`（997,807,778 B），见 [CosyVoice3-MNN v1.0.0](https://github.com/Nian27/CosyVoice3-MNN/releases/tag/v1.0.0)。
 
 字体层级、部署顺序与逐个文件的 sha256 见 [docs/RELEASE_v1.1.0.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/RELEASE_v1.1.0.md)。

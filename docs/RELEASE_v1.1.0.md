@@ -12,9 +12,10 @@
 | 4 | `vd-weights-3-graphb-w-part1.zip` | 1,321,857,592 | 设计权重 · GraphB 常量池 part1 |
 | 5 | `vd-weights-4-decoder.zip` | 944,514,162 | 设计权重 · codec decoder |
 | 6 | `vd-weights-5-hosttables.zip` | 1,045,679,777 | 设计权重 · host tables |
-| 7 | `vd-integrated-delta.zip` | ≈1.67 GB（待打包） | **本版新增**：把设计权重从"独立样例那一套"对齐到"合体 App 那一套"的增量（19 个同名文件 + 6 个差异文件 + 设备上的 `tokenizer_decoder_static_t96.mnn`） |
-| 8 | `cosyvoice3-mnn-mobile-fp16-complete.zip` | 1,399,083,563 | 朗读（CosyVoice3）主模型包 —— 与 `CosyVoice3-MNN` Release v1.0.0 同一个文件 |
-| 9 | `cosyvoice3-mnn-enrollment-extension.zip` | 997,807,778 | 朗读（CosyVoice3）音色注册扩展包 —— 同上 |
+| 7 | `vd-integrated-delta.zip.part0..part4` | 419,430,400 ×4 + 313,405,272 | **本版新增（已上传）**：合体版设计权重增量。**字节切片**，`cat` 拼回后为 `vd-integrated-delta.zip` = **1,991,126,872 B**，sha256 `1b7f2053ecad63f1168ee053050f9b69f35784a608e556a4e07a9c1e124c2af3`，内含 24 个模型文件 + `SHA256SUMS.txt` |
+| 8 | `vd-integrated-delta-PARTS-SHA256SUMS.txt` | 480 | 5 个分片的 sha256，`sha256sum -c` 可直接校验 |
+| 9 | `cosyvoice3-mnn-mobile-fp16-complete.zip` | 1,399,083,563 | 朗读（CosyVoice3）主模型包 —— 与 `CosyVoice3-MNN` Release v1.0.0 同一个文件 |
+| 10 | `cosyvoice3-mnn-enrollment-extension.zip` | 997,807,778 | 朗读（CosyVoice3）音色注册扩展包 —— 同上 |
 
 所有附件均 < 2 GB，符合 GitHub Release 单附件上限。
 
