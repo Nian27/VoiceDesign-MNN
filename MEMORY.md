@@ -96,3 +96,10 @@ Bug C  ScatterND 不保留目标原值                        -> one-hot mask �
 - OpenCL 上 2.5 s/帧 的具体瓶颈（怀疑是 2.8GB 权重的每步带宽）
 - buildPrompt 对超长文本没有越界保护（maxTok=512）
 ```
+
+## 2026-09-18 v1.1.0（合体版）
+
+- 本仓库升级为 VoiceDesign + CosyVoice3 合体：设计（Qwen3-TTS 1.7B VoiceDesign）+ 朗读（CosyVoice3 0.5B）。
+- 朗读链长文本修复：采样器缺 repetition penalty / maxTokens 写死 500 / 质量门误杀 / 长度分流依据被推翻 —— 详见 CHANGELOG.md。
+- 实测：朗读 LLM 段 3.05~11.94 s（47.6~67.2 tok/s，首次尝试即接受）；长句 NPU prefill 0.62~0.78 s（比 OpenCL 快 17~35 倍）；音色创建闭环 97.3 s。
+- 已发布物见 docs/RELEASE_v1.1.0.md（9 个附件，全部 <2 GB）。

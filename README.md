@@ -363,3 +363,8 @@ VoiceDesign-MNN/
 - Hexagon 配方来自 MNN 仓库 `source/backend/hexagon/README.md` 与官方 `apps/Android/MnnLlmChat/.../QnnModule.kt`
 
 **免责**：本项目为工程验证用途。用他人音色生成语音涉及法律与伦理问题，请遵守当地法规。
+
+---
+
+**v1.1.0（2026-09-18）**：本仓库升级为 **VoiceDesign + CosyVoice3 合体**版本；
+问题、解法与实测提升见 [CHANGELOG.md](CHANGELOG.md)，发布物清单见 [docs/RELEASE_v1.1.0.md](docs/RELEASE_v1.1.0.md)。
