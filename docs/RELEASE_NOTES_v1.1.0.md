@@ -1,0 +1,115 @@
+# VoiceDesign-MNN v1.1.0 版本发布说明
+
+**发布日期**: 2026年9月18日
+
+📦 **产物**: `VoiceDesign-MNN-v1.1.0-arm64.apk`（12,378,500 B，正式签名）｜ [完整清单](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/RELEASE_v1.1.0.md)
+
+## 📌 版本概述
+
+v1.1.0 把两条线合成**一个可运行的例子**，并修掉朗读链上「长文本只读开头一句」的问题：
+
+*   **合体**：VoiceDesign（Qwen3-TTS 1.7B，纯文字造音色）+ CosyVoice3（0.5B，朗读合成）跑在同一个 App 里，共用同一套 enrollment 与音色档案。
+*   **长文本修复**：真正的病根是**采样器从来没有重复惩罚** —— `cosyvoice_ras` 的管线写死为 `range → topK → topP → select`，不含 `penalty` 步，而 `repetition_penalty` 只在 `penalty` 步生效。同一句 92 字（`inputTokens=231`）此前 5 次 NPU + 2 次 CPU 尝试**全部被质量门拒绝**、耗时约 187～275 秒，最后交付的还是被截断的音频；修复后**首次尝试 11.94 秒即通过**。
+*   **顺带推翻两个旧结论**：「长句不能用 NPU」（判据字段 `continuousHexagon` 经查只是配置回显）与「CPU 退化率最高」（那次 266 连击来自不带守卫的 `mixed` 采样器）。
+
+---
+
+## 🚀 性能提升（全部为 SM8850 真机实测）
+
+| 项目 | 修复前 | 修复后 | 提升 |
+|---|---|---|---|
+| 长句 NPU **prefill**（63 字 / `inputTokens=196`） | 走 OpenCL：10.8 ~ 22.9 s | **0.62 ~ 0.78 s** | **14× ~ 35×** |
+| 同一句 92 字**整条朗读链**（`inputTokens=231`） | 5 次 NPU（合计 100.4 s）+ CPU 兜底 87.1 s 起，**全部被拒** | **首次尝试 11.94 s 通过** | **≥15.7×**（保守口径：187.5 s ÷ 11.94 s；把第二次 CPU 兜底算进去约 **23×**） |
+| 单次可生成语音时长 | `maxTokens=500` ≈ **20 秒** | `maxTokens=952` ≈ **38 秒** | **1.9×** |
+| 长句首次通过率（63 字，NPU） | 0 / 7 次尝试通过 | **4 / 4 首次即通过** | — |
+| 音色创建闭环（设计 + 注册） | App 内旧提示「约 4 ~ 9 分钟」 | **97.3 s**（prefill 19.4 / decode 61.5 / decoder 6.6 / enroll 6.4） | **2.5× ~ 5.6×** |
+| 注册参考音频设计耗时 | 26 字 → 设计 7.68 s，其中只留 5.0 s | 15 字 → 设计 **4.08 s**，**全部保留** | 设计 **1.88×**，丢弃率 35% → **0%** |
+| 质量门误杀（63 字那批 7 次尝试） | 拒 7 / 7，其中 4 次是正常输出（误杀率 **57%**） | 0 次误杀 | — |
+
+朗读 LLM 段分项实测（全部首次尝试即接受）：
+
+| 用例 | prompt → 输出 token | 吞吐 | LLM wall |
+|---|---:|---:|---:|
+| 短文本 | 150 → 155 | **67.2 tok/s** | **3.05 s** |
+| 短文本 | 150 → 151 | **58.7 tok/s** | **3.32 s** |
+| 长文本（92 字） | 231 → 452 | **47.6 tok/s** | **11.94 s** |
+
+> 口径声明：音色创建那一行的「4~9 分钟」是 App 内原本写给用户的提示文案，我没有留下修复前同口径的墙钟记录，
+> 所以按「旧提示 vs 新实测」标注，不作为严格的前后对比；其余各行都是同一台设备、同一句文本的实测值。
+
+---
+
+## 🔧 修了什么，怎么修的
+
+### 1. 采样器没有重复惩罚（最关键）
+
+*   **现象**：92 字文本生成固定停在 500 token、没有 EOS，只读出开头一句。
+*   **定位**：读构建机上的 MNN fork 源码 `transformers/llm/engine/src/sampler.cpp` —— `cosyvoice_ras` 的管线写死为 `stepCosyVoiceRange → stepTopK → stepTopP → stepSelect`，**没有 `penalty` 步**；MNN 默认的 `mixed_samplers` 也不含它。**这套 LLM 从来没有过重复惩罚。**
+*   **修复**：runtime config 默认改为 `sampler_type=mixed` + `mixed_samplers=["penalty","topK","topP","temperature"]` + `repetition_penalty=1.15`。
+*   **验证**（同一句 92 字 / hexagon）：
+
+| 采样器 | 尝试 | 生成 token | EOS | unique | 最长连续重复 | 结果 |
+|---|---:|---:|---|---:|---|---|
+| `cosyvoice_ras`（旧） | 6 | 500 / 952 | ✗ 全部 | 57 ~ 219 | 33 / 314 / 345 / 610 / 858 | 全部被拒 |
+| `mixed` + `penalty` 1.15 | **1** | **590** | **✓** | — | — | **接受，成品 23.56 s** |
+
+### 2. `maxTokens` 写死 500（≈ 只够 20 秒语音）
+
+*   **定位**：这条链的 LM 生成的是「音色前缀文本 + 正文」**整段**，音色档案里那 25 个字的参考文本同样占 token。实测约 **6 token/字**：39 字 → 184 token；63 字 → 353 ~ 443；92 字 → 必然撞满 500。
+*   **修复**：`maxTokens = (前缀字数 + 正文字数) × 8 + 128`，钳在 `[500, 1024]`（92 字实测取 952）。
+
+### 3. 质量门判据误杀正常输出
+
+*   **定位**：旧判据 `longestRun >= 8 即拒` 在长输出上误杀 —— 63 字那批 7 次尝试里有 4 次是**正常终止**（370 ~ 387 token、有 EOS、unique 230 ~ 246），最长连续段只有 8 ~ 20 个 token（约 0.3 ~ 0.8 秒），在语音 token 里对应长元音 / 静音 / 拖音；真正跑飞的几次**都没有 EOS**，最长段 105 ~ 858。
+*   **修复**：新判据只保留三条能证明退化的条件 ——
+
+```text
+1. 没有 EOS                 生成只可能在 EOS 或 maxTokens 处停下，没 EOS 就是撞满上限
+2. unique <= 4 且长度 >= 20   灾难性坍缩
+3. 单段连续重复 >= 64         "正常"最大 20、"跑飞"最小 105，64 落在两者之间
+```
+
+*   并新增**尾部空转裁剪**：没有 EOS、重复段延伸到序列末尾、重复段 ≥ 32 且保留段 ≥ 32 时切掉重复段（写 `llm-tail-repair.txt` 留证，不静默处理）。
+
+### 4. 「长句不能用 NPU」这个结论是错的
+
+*   **定位**：报告里的 `continuousHexagon` 算的是 `(配置名含 hexagon) && (hexagon-stage-layers.txt 非空)`，`npuFirstTokenValid` 直接等于 `hybridNpuPrefill`（= 配置含 hexagon 且 stage 文件为空）—— **两者都是配置回显，不是运行期测量**；而 stage 文件恰好由 App 自己在调用前写入，所以它必然为真。加上判据本身就是第 3 条那个误杀阈值。
+*   **修复**：取消「≤ 24 字走 NPU、否则走 OpenCL」的分流，一律用硬件策略给出的后端。实测同一句 63 字 hexagon **4/4 首次即通过**。
+
+### 5. 最后一次尝试不过质量门，退化音频被悄悄交付
+
+*   **定位**：原来只有第一次尝试过门，最后那次 CPU 兜底跑完直接交付 —— 而 CPU 恰是退化率最高的那条路。
+*   **修复**：尝试计划改为「路由后端 5 次 → CPU 兜底 2 次」，**每一次都过同一道门**，全不过就报错。
+
+### 6. 注册参考文本 26 字 → 15 字
+
+*   **定位**：注册时音频会被 `MAX_REALTIME_PROMPT_TOKENS = 125`（= 5.0 秒 / 250 帧）截断，而 `promptPrefix` 里存的仍是**完整文本** —— 文本提示与音频提示不对齐（26 字设计出 7.68 s，截到 5.0 s，前 5 秒只覆盖前约 17 个字）。
+*   **修复**：默认参考文本改为 15 字（对齐内置基准音色 `builtin-mnn-reference-v1` 的 15 字 / 87 token / 3.48 秒）。实测新默认设计出 **4.08 秒 / 102 token，不再被截断**。`design.json` 现在记录 `promptTokenCount` / `promptFrameCount` / `promptTruncatedByRealtimeLimit`。
+
+---
+
+## 📦 产物与权重
+
+本 Release 提供合体 APK。权重分两部分（全部为 GitHub 附件 / 已有 Release 复用，单个附件均 < 2 GB）：
+
+*   **设计权重（VoiceDesign / Qwen3-TTS 1.7B）**：`vd-weights-1..5` 见 [v1.0.0](https://github.com/Nian27/VoiceDesign-MNN/releases/tag/v1.0.0)（GraphB 常量池 2.82 GB 因超 2 GB 上限，拆成 part0 / part1）；`vd-integrated-delta.zip` 用于把权重对齐到**合体版 App** 那一套（差异见 [docs/VOICEDESIGN_WEIGHTS.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/VOICEDESIGN_WEIGHTS.md)）。
+*   **朗读权重（CosyVoice3 0.5B）**：`cosyvoice3-mnn-mobile-fp16-complete.zip`（1,399,083,563 B）与 `cosyvoice3-mnn-enrollment-extension.zip`（997,807,778 B），见 [CosyVoice3-MNN v1.0.0](https://github.com/Nian27/CosyVoice3-MNN/releases/tag/v1.0.0)。
+
+字体层级、部署顺序与逐个文件的 sha256 见 [docs/RELEASE_v1.1.0.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/RELEASE_v1.1.0.md)。
+
+---
+
+## ⚠️ 已知问题
+
+*   **参考文本会被一并念出**：LM 生成的是「参考文本 + 正文」整段，App 把整段都当目标 token 交给 flow。要只读出正文，需要先确认 flow / conditioner 对「token 序列是否含提示区」的约定，不能凭猜改。
+*   **`decodeMs` 与 `wallMs` 出现过互相矛盾的读数**（809 s vs 639 s），该字段的差分在某些路径上不可靠，诊断时请用 `wallMs` 或产物文件时间。
+*   **`len266@[234-499]` 的重复起点**只有单次观测，不足以支撑结论。
+
+---
+
+## 📚 文档
+
+*   [CHANGELOG.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/CHANGELOG.md) —— 问题 / 定位 / 解法 / 实测数字
+*   [docs/LONG_TEXT_FIX_2026-09-18.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/LONG_TEXT_FIX_2026-09-18.md) —— 长文本修复详解
+*   [docs/VOICEDESIGN_WEIGHTS.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/VOICEDESIGN_WEIGHTS.md) —— 权重现状与缺口
+*   [docs/RELEASE_v1.1.0.md](https://github.com/Nian27/VoiceDesign-MNN/blob/main/docs/RELEASE_v1.1.0.md) —— 发布物清单
